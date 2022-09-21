@@ -47,7 +47,7 @@ char* generate_header_text(const mail_t *mail, bool verbose);
 mail_t *handle_config();
 mail_t *read_config(const char *config_file);
 void create_config();
-void remove_spaces(char *str);
+char *remove_trailing_space(char *str);
 
 int main(int argc, char *argv[]){
 	int opt;
@@ -308,9 +308,11 @@ mail_t *read_config(const char *config_file){
 			}
 			if(buffer[i] == '#') break;
 			if(buffer[i] == '=') {
-				key = (char *)realloc(key, i * sizeof(char));
-				remove_spaces(key);
+				remove_trailing_space(key);
+				key = realloc(key, strlen(key) + 1);
 				separator_index = i;
+				line_started = false;
+				start_offset = 0;
 				continue;
 			}
 
@@ -319,16 +321,15 @@ mail_t *read_config(const char *config_file){
 			if(separator_index == -1){
 				key[i-start_offset] = buffer[i];
 			} else {
-				value[i-separator_index-1] = buffer[i];
+				value[i-start_offset-separator_index-1] = buffer[i];
 			}
 		}
 
-		value = (char *)realloc(value, (i-separator_index-1));
-		printf("|%s|\n",value);
-		remove_spaces(value);
-		printf("|%s|\n",value);
+//		value = (char *)realloc(value, (i-separator_index-1));
+		value = realloc(value, strlen(value) + 1);
+		remove_trailing_space(value);
 
-		//printf("|%s| |%s|\n",key,value);
+		printf("|%s| |%s|\n",key,value);
 
 		if(strcmp(key,"NAME") == 0) {
 			mail->name = malloc(strlen(value) + 1);
@@ -355,20 +356,13 @@ mail_t *read_config(const char *config_file){
 	return mail;
 }
 
-void remove_spaces(char *str){
+char *remove_trailing_space(char *str){
 
-        int spaces_start = 0, spaces_end = 0;
+        int trailing_space_count = 0;
 
-	printf("<%c>\n",str[0]);
-
-        while(str[spaces_start] == ' '){
-                spaces_start++;
+        while(str[strlen(str)-trailing_space_count-1] == ' '){
+                trailing_space_count++;
         }
 
-        while(str[strlen(str)-spaces_end-1] == ' '){
-                spaces_end++;
-        }
-
-        str += spaces_start;
-        str[strlen(str)-spaces_end] = '\0';
+	str[strlen(str)-trailing_space_count] = '\0';
 }
