@@ -325,11 +325,8 @@ mail_t *read_config(const char *config_file){
 			}
 		}
 
-//		value = (char *)realloc(value, (i-separator_index-1));
 		value = realloc(value, strlen(value) + 1);
 		remove_trailing_space(value);
-
-		printf("|%s| |%s|\n",key,value);
 
 		if(strcmp(key,"NAME") == 0) {
 			mail->name = malloc(strlen(value) + 1);
