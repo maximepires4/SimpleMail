@@ -128,9 +128,7 @@ int main(int argc, char *argv[]){
 	if(mail->attachment) free(mail->attachment);
 	free(mail);
 
-	if(verbose) {
-		printf("SENDING MAIL: Successful\n");
-	}
+	printf(DEFAULT_PROGNAME": Successful\n");
 
 	return EXIT_SUCCESS;
 }
@@ -281,9 +279,7 @@ void generate_mail_from_config(mail_t *mail, bool reload){
 	char *config_file = calloc(strlen(getenv("HOME")) + strlen(DEFAULT_PROGNAME) + 4 + 1, sizeof(char));
 	sprintf(config_file, "%s/."DEFAULT_PROGNAME"rc", getenv("HOME"));
 
-	printf("reload: %d\n", reload);
 	if(access(config_file, F_OK) == -1 || reload) {
-	printf("reload: %d\n", reload);
 		create_config(config_file);
 	}
 
