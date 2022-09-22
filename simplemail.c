@@ -225,8 +225,9 @@ char* generate_header_text(const mail_t *mail, bool verbose){
 	}
 
 	*/
-	
-	char *header_buffer = malloc(43 + DATE_LENGTH + strlen(mail->to) + strlen(mail->from) + strlen(mail->name) + (mail->cc ? strlen(mail->cc) : 0) + (mail->bcc ? strlen(mail->bcc) : 0) + strlen(mail->subject) + 1);
+
+		
+	char *header_buffer = calloc(43 + DATE_LENGTH + strlen(mail->to) + strlen(mail->from) + strlen(mail->name) + (mail->cc ? strlen(mail->cc) : 0) + (mail->bcc ? strlen(mail->bcc) : 0) + strlen(mail->subject) + 1, sizeof(char));
 
 	if(!header_buffer) {
 		fprintf(stderr, "Error allocating memory for header_buffer");
@@ -255,7 +256,7 @@ char* reformat_mail(const char* str, bool verbose){
 	} else {
 		if(verbose) printf("CONVERTING: %s -> <%s>\n",str,str);
 		
-		mail_address = malloc(strlen(str) + 2 +1);
+		mail_address = calloc(strlen(str) + 2 +1, sizeof(char));
 
 		if(!mail_address){
 			fprintf(stderr, "Error allocating memory while reformating mail");
@@ -274,7 +275,7 @@ char* reformat_mail(const char* str, bool verbose){
 
 mail_t *handle_config(){
 
-	char *config_file = malloc(strlen(getenv("HOME")) + strlen(DEFAULT_PROGNAME) + 4 + 1);
+	char *config_file = calloc(strlen(getenv("HOME")) + strlen(DEFAULT_PROGNAME) + 4 + 1, sizeof(char));
 	sprintf(config_file, "%s/."DEFAULT_PROGNAME"rc", getenv("HOME"));
 //	strcat(config_file, getenv("HOME"));
 //	strcat(config_file, "/."DEFAULT_PROGNAME"rc");
@@ -283,7 +284,7 @@ mail_t *handle_config(){
 		create_config(config_file);
 	}
 
-	mail_t *mail = malloc(sizeof(mail_t));
+	mail_t *mail = calloc(1, sizeof(mail_t));
 	read_config(mail, config_file);
 
 	free(config_file);
@@ -302,15 +303,14 @@ void read_config(mail_t *mail, const char *config_file){
 
 	while(!feof(fp)){
 		fgets(buffer, MAX_SIZE, fp);
-
-		char *key = malloc(MAX_SIZE), *value = malloc(MAX_SIZE);
 		
 		if(buffer[0] == '#') continue;
 
+		char *key = calloc(MAX_SIZE, sizeof(char)), *value = calloc(MAX_SIZE, sizeof(char));
 		bool line_started = false;
 		int separator_index = -1;
-
 		int i = 0, start_offset = 0;
+
 		for(; buffer[i] != '\n'; i++){
 
 			if(buffer[i] == ' ' && !line_started) {
@@ -367,6 +367,8 @@ void read_config(mail_t *mail, const char *config_file){
 }
 
 void remove_trailing_space(char *str){
+
+	if(!str) return;
 
         int trailing_space_count = 0;
 
