@@ -200,15 +200,14 @@ int sendmail(const mail_t *mail, bool verbose){
 char* generate_header_text(const mail_t *mail, bool verbose){
 	if (verbose) printf("GENERATING HEADER...\n");
 
-	
-	char *cc_buffer = mail->cc;
-	char *bcc_buffer = mail->bcc;
-
 	/*
+	char *cc_buffer;
+	char *bcc_buffer;
+	
 	if(mail->cc){
-		cc_buffer = mail->cc;
+		cc_buffer = strdup(mail->cc);
 	} else {
-		cc_buffer = malloc(sizeof(char));
+		cc_buffer = malloc(1);
 		if(!cc_buffer) {
 			fprintf(stderr, "Error allocating memory for cc_buffer");
 		}
@@ -216,17 +215,18 @@ char* generate_header_text(const mail_t *mail, bool verbose){
 	}
 
 	if(mail->bcc){
-		bcc_buffer = mail->bcc;
+		bcc_buffer = strdup(mail->bcc);
 	} else {
-		bcc_buffer = malloc(sizeof(char));
+		bcc_buffer = malloc(1);
 		if(!bcc_buffer) {
 			fprintf(stderr, "Error allocating memory for bcc_buffer");
 		}
 		bcc_buffer = "";
 	}
-	*/
 
-	char *header_buffer = malloc((43 + DATE_LENGTH + strlen(mail->to) + strlen(mail->from) + strlen(mail->name) + strlen(cc_buffer) + strlen(bcc_buffer) + strlen(mail->subject) + 1) * sizeof(char));
+	*/
+	
+	char *header_buffer = malloc(43 + DATE_LENGTH + strlen(mail->to) + strlen(mail->from) + strlen(mail->name) + (mail->cc ? strlen(mail->cc) : 0) + (mail->bcc ? strlen(mail->bcc) : 0) + strlen(mail->subject) + 1);
 
 	if(!header_buffer) {
 		fprintf(stderr, "Error allocating memory for header_buffer");
@@ -238,7 +238,7 @@ char* generate_header_text(const mail_t *mail, bool verbose){
         char date_buffer[DATE_LENGTH];
         strftime(date_buffer, DATE_LENGTH, "%a, %d %b %Y %H:%M:%S %z", pTime);
 
-	sprintf(header_buffer, "Date: %s\nTo: %s\nFrom: %s (%s)\nCc: %s\nBcc: %s\nSubject: %s\n", date_buffer, mail->to, mail->from, mail->name, cc_buffer, bcc_buffer, mail->subject);
+	sprintf(header_buffer, "Date: %s\nTo: %s\nFrom: %s (%s)\nCc: %s\nBcc: %s\nSubject: %s\n", date_buffer, mail->to, mail->from, mail->name, mail->cc ? mail->cc : "", mail->bcc ? mail->bcc : "", mail->subject);
 
 	if(verbose) {
 		printf("%s\nGENERATING HEADER: Done\n", header_buffer);
@@ -275,8 +275,9 @@ char* reformat_mail(const char* str, bool verbose){
 mail_t *handle_config(){
 
 	char *config_file = malloc(strlen(getenv("HOME")) + strlen(DEFAULT_PROGNAME) + 4 + 1);
-	strcat(config_file, getenv("HOME"));
-	strcat(config_file, "/."DEFAULT_PROGNAME"rc");
+	sprintf(config_file, "%s/."DEFAULT_PROGNAME"rc", getenv("HOME"));
+//	strcat(config_file, getenv("HOME"));
+//	strcat(config_file, "/."DEFAULT_PROGNAME"rc");
 
 	if(access(config_file, F_OK)) {
 		create_config(config_file);
@@ -392,31 +393,32 @@ void create_config(const char *config_file){
 	printf("Please enter your name: ");
 	fgets(buffer, MAX_SIZE, stdin);
 	buffer[strcspn(buffer, "\n")] = 0;
-	fprintf(fp,"NAME=%s", buffer);
+	fprintf(fp, "NAME=%s", buffer);
 
 	printf("Please enter your username: ");
 	fgets(buffer, MAX_SIZE, stdin);
 	buffer[strcspn(buffer, "\n")] = 0;
-	fprintf(fp,"\nUSERNAME=%s", buffer);
+	fprintf(fp, "\nUSERNAME=%s", buffer);
 
 	printf("Please enter your password: ");
 	fgets(buffer, MAX_SIZE, stdin);
 	buffer[strcspn(buffer, "\n")] = 0;
-	fprintf(fp,"\nPASSWORD=%s", buffer);
+	fprintf(fp, "\nPASSWORD=%s", buffer);
 
 	printf("Please enter your mail: ");
 	fgets(buffer, MAX_SIZE, stdin);
 	buffer[strcspn(buffer, "\n")] = 0;
-	fprintf(fp,"\nMAIL=%s", buffer);
+	fprintf(fp, "\nMAIL=%s", buffer);
 
 	printf("Please enter the smtp server: ");
 	fgets(buffer, MAX_SIZE, stdin);
 	buffer[strcspn(buffer, "\n")] = 0;
-	fprintf(fp,"\nSMTP=%s", buffer);
+	fprintf(fp, "\nSMTP=%s", buffer);
 
 	printf("Please enter the port: ");
 	fgets(buffer, MAX_SIZE, stdin);
 	buffer[strcspn(buffer, "\n")] = 0;
+	fprintf(fp,":%s", buffer);
 
 	fclose(fp);
 	printf("\nThe config file has been successfully created, feel free to edit it at ~/.simplemailrc (becareful of unwanted spaces!)\n");
