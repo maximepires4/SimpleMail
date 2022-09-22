@@ -45,7 +45,7 @@ simplemail - Sending mail via terminal
 : Success
 
 # BUGS
-Please report any issues at the following issue tracker: https://github.com/Marouk4/SimpleMail/issues
+Please report any issues to the following issue tracker: https://github.com/Marouk4/SimpleMail/issues
 
 # COPYRIGHT
 Copyright © 2022 Maxime Pires. License GPLv3+: GNU GPL version 3 or later <https://gnu.org/licenses/gpl.html>.
