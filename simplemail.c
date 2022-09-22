@@ -15,8 +15,8 @@
 #include <time.h>
 #include <stdbool.h>
 
-#define OPTSTR "hvc:b:a:"
-#define USAGE_FMT "%s [-h] [-v] [-c carbonCopy] [-b blindCarbonCopy] [-a attachmentFile] TO SUBJECT CONTENT\n"
+#define OPTSTR "rhvc:b:a:"
+#define USAGE_FMT "%s [-r] [-h] [-v] [-c carbonCopy] [-b blindCarbonCopy] [-a attachmentFile] TO SUBJECT CONTENT\n"
 #define ERR_FOPEN_CONFIG "fopen(config, r)"
 #define ERR_SENDMAIL "Error sending the mail"
 #define DEFAULT_PROGNAME "simplemail"
@@ -45,7 +45,7 @@ void usage(char *progname, int opt);
 int sendmail(const mail_t *mail, bool verbose);
 char* reformat_mail(const char* str, bool verbose);
 char* generate_header_text(const mail_t *mail, bool verbose);
-mail_t *generate_mail_from_config();
+void generate_mail_from_config(mail_t *mail, bool reload);
 void read_config(mail_t *mail, const char *config_file);
 void create_config(const char *config_file);
 void remove_trailing_space(char *str);
@@ -53,7 +53,9 @@ void remove_trailing_space(char *str);
 int main(int argc, char *argv[]){
 	int opt;
 	bool verbose = false;
-	mail_t *mail = generate_mail_from_config();
+	bool reload = false;
+
+	mail_t *mail = calloc(1, sizeof(mail_t));
 
 	opterr = 0;
 
@@ -62,6 +64,10 @@ int main(int argc, char *argv[]){
 			case 'h':
 				usage(basename(argv[0]), opt);
 				/* NOTREACHED */
+				break;
+
+			case 'r':
+				reload = true;
 				break;
 			
 			case 'v':
@@ -77,10 +83,13 @@ int main(int argc, char *argv[]){
 				break;
 
 			case 'a':
+				mail->attachment = malloc(strlen(optarg) + 1);
 				mail->attachment = optarg;
 				break;
 		}
 	}
+
+	generate_mail_from_config(mail, reload);
 
 	argc -= optind;
 	argv += optind;
@@ -111,6 +120,7 @@ int main(int argc, char *argv[]){
 	free(mail->to);
 	if(mail->cc) free(mail->cc);
 	if(mail->bcc) free(mail->bcc);
+	if(mail->attachment) free(mail->attachment);
 	free(mail);
 
 	if(verbose) {
@@ -246,7 +256,7 @@ char* reformat_mail(const char* str, bool verbose){
 	return mail_address;
 }
 
-mail_t *generate_mail_from_config(){
+void generate_mail_from_config(mail_t *mail, bool reload){
 
 	char *config_file = calloc(strlen(getenv("HOME")) + strlen(DEFAULT_PROGNAME) + 4 + 1, sizeof(char));
 	sprintf(config_file, "%s/."DEFAULT_PROGNAME"rc", getenv("HOME"));
@@ -255,12 +265,9 @@ mail_t *generate_mail_from_config(){
 		create_config(config_file);
 	}
 
-	mail_t *mail = calloc(1, sizeof(mail_t));
 	read_config(mail, config_file);
 
 	free(config_file);
-
-	return mail;
 }
 
 void read_config(mail_t *mail, const char *config_file){
@@ -311,22 +318,18 @@ void read_config(mail_t *mail, const char *config_file){
 		remove_trailing_space(value);
 
 		if(strcmp(key,"NAME") == 0) {
-			//mail->name = malloc(strlen(value) + 1);
 			mail->name = strdup(value);
 
 		} else if(strcmp(key,"USERNAME") == 0) {
-			//mail->username = malloc(strlen(value) + 1);
 			mail->username = strdup(value);
 
 		} else if(strcmp(key,"PASSWORD") == 0) {
-			//mail->password = malloc(strlen(value) + 1);
 			mail->password = strdup(value);
 
 		} else if(strcmp(key,"MAIL") == 0) {
 			mail->from = reformat_mail(value, false);
 
 		} else if(strcmp(key,"SMTP") == 0) {
-			//mail->smtp = malloc(strlen(value) + 1);
 			mail->smtp = strdup(value);
 		}
 
