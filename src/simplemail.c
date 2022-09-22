@@ -43,7 +43,7 @@ typedef struct {
 void usage(int status);
 int sendmail(const mail_t *mail, bool verbose);
 char* reformat_mail(const char* str, bool verbose);
-char* generate_header_text(const mail_t *mail, bool verbose);
+void generate_header_text(char **header_buffer, const mail_t *mail, bool verbose);
 void generate_mail_from_config(mail_t *mail, bool reload);
 void read_config(mail_t *mail, const char *config_file);
 void create_config(const char *config_file);
@@ -169,9 +169,8 @@ int sendmail(const mail_t *mail, bool verbose){
 	curl_mime *mime;
 	curl_mime *alt;
 	curl_mimepart *part;
+	char *header_buffer = NULL;
 
-	char *header_buffer = generate_header_text(mail, verbose);
-	
 	curl = curl_easy_init();
 	if(curl) {
         	curl_easy_setopt(curl, CURLOPT_USERNAME, mail->username);
@@ -188,6 +187,7 @@ int sendmail(const mail_t *mail, bool verbose){
 	        if(mail->bcc) recipients = curl_slist_append(recipients, mail->bcc);
 	        curl_easy_setopt(curl, CURLOPT_MAIL_RCPT, recipients);
 
+        	generate_header_text(&header_buffer, mail, verbose);
 		headers = curl_slist_append(headers, header_buffer);
 		curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers);
 
@@ -221,16 +221,17 @@ int sendmail(const mail_t *mail, bool verbose){
 		curl_easy_cleanup(curl);
 
 		curl_mime_free(mime);
+		
+		free(header_buffer);
 	}
 
-	free(header_buffer);
 	return (int)res;
 }
 
-char* generate_header_text(const mail_t *mail, bool verbose){
+void generate_header_text(char **header_buffer, const mail_t *mail, bool verbose){
 	if (verbose) printf("GENERATING HEADER...\n");
 		
-	char *header_buffer = calloc(43 + DATE_LENGTH + strlen(mail->to) + strlen(mail->from) + strlen(mail->name) + (mail->cc ? strlen(mail->cc) : 0) + (mail->bcc ? strlen(mail->bcc) : 0) + strlen(mail->subject) + 1, sizeof(char));
+	*header_buffer = calloc(43 + DATE_LENGTH + strlen(mail->to) + strlen(mail->from) + strlen(mail->name) + (mail->cc ? strlen(mail->cc) : 0) + (mail->bcc ? strlen(mail->bcc) : 0) + strlen(mail->subject) + 1, sizeof(char));
 
 	if(!header_buffer) {
 		fprintf(stderr, "Error allocating memory for header_buffer");
@@ -242,13 +243,11 @@ char* generate_header_text(const mail_t *mail, bool verbose){
         char date_buffer[DATE_LENGTH];
         strftime(date_buffer, DATE_LENGTH, "%a, %d %b %Y %H:%M:%S %z", pTime);
 
-	sprintf(header_buffer, "Date: %s\nTo: %s\nFrom: %s (%s)\nCc: %s\nBcc: %s\nSubject: %s\n", date_buffer, mail->to, mail->from, mail->name, mail->cc ? mail->cc : "", mail->bcc ? mail->bcc : "", mail->subject);
+	sprintf(*header_buffer, "Date: %s\nTo: %s\nFrom: %s (%s)\nCc: %s\nBcc: %s\nSubject: %s\n", date_buffer, mail->to, mail->from, mail->name, mail->cc ? mail->cc : "", mail->bcc ? mail->bcc : "", mail->subject);
 
 	if(verbose) {
-		printf("%s\nGENERATING HEADER: Done\n", header_buffer);
+		printf("%s\nGENERATING HEADER: Done\n", *header_buffer);
 	}
-
-	return header_buffer;
 }
 
 char* reformat_mail(const char* str, bool verbose){
