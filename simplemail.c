@@ -41,7 +41,7 @@ typedef struct {
 	char	*attachment;
 } mail_t;
 
-void usage(char *progname, int opt);
+void usage(int status);
 int sendmail(const mail_t *mail, bool verbose);
 char* reformat_mail(const char* str, bool verbose);
 char* generate_header_text(const mail_t *mail, bool verbose);
@@ -62,7 +62,7 @@ int main(int argc, char *argv[]){
 	while((opt = getopt(argc, argv, OPTSTR)) != EOF){
 		switch(opt) {
 			case 'h':
-				usage(basename(argv[0]), opt);
+				usage(EXIT_SUCCESS);
 				/* NOTREACHED */
 				break;
 
@@ -86,6 +86,10 @@ int main(int argc, char *argv[]){
 				mail->attachment = malloc(strlen(optarg) + 1);
 				mail->attachment = optarg;
 				break;
+				
+			default:
+				fprintf(stderr, DEFAULT_PROGNAME": Invalid option -- '%s'\n",optarg);
+				usage(EXIT_FAILURE);
 		}
 	}
 
@@ -95,7 +99,8 @@ int main(int argc, char *argv[]){
 	argv += optind;
 
 	if(argc != 3){
-		usage(basename(argv[0]), opt);
+		fprintf(stderr, DEFAULT_PROGNAME": Too few arguments\n");
+		usage(EXIT_FAILURE);
 		/* NOTREACHED */
 	}
 
@@ -130,9 +135,23 @@ int main(int argc, char *argv[]){
 	return EXIT_SUCCESS;
 }
 
-void usage(char *progname, int opt){
-	fprintf(stderr, USAGE_FMT, progname?progname:DEFAULT_PROGNAME);
-	exit(EXIT_FAILURE);
+void usage(int status){
+	if(status != EXIT_SUCCESS) {
+		fprintf(stderr, "Try '"DEFAULT_PROGNAME" -h' for more information\n");
+	} else {
+		printf("Usage: "DEFAULT_PROGNAME" [OPTION]... TO SUBJECT CONTENT\n");
+		printf("Send a mail with a subject and a content to an address.\nThese 3 arg are specified in the call of the program.\nRunning the program first will ask for your mail information, which will be saved in '~/.simplemailrc'.\nOnce these parameters saved, the program will attempt to read them at each starts.\n");
+		printf("\nParameters:\n\
+			       	-r			Erase the config file and ask for the parameters.\n\
+				-h			Print the help.\n\
+				-v			Print what the program is doing.\n\
+				-c [carbon-copy]	Add the specified address to the carbon copy of the mail.\n\
+				-b [blind-carbon-copy]	Add the specified address to the blind carbon copy of the mail.\n\
+				");
+	}
+
+	exit(status);
+	/* NOTREACHED */
 }
 
 int sendmail(const mail_t *mail, bool verbose){
