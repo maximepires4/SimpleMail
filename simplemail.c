@@ -148,6 +148,7 @@ void usage(int status){
 				-c [carbon-copy]	Add the specified address to the carbon copy of the mail.\n\
 				-b [blind-carbon-copy]	Add the specified address to the blind carbon copy of the mail.\n\
 				");
+		printf("\nGitHub page: https://github.com/Marouk4/SimpleMail\n");
 	}
 
 	exit(status);
@@ -416,6 +417,6 @@ void create_config(const char *config_file){
 	fprintf(fp,":%s", buffer);
 
 	fclose(fp);
-	printf("\nThe config file has been successfully created, feel free to edit it at ~/.simplemailrc (becareful of unwanted spaces!)\n");
+	printf("The config file has been successfully created, feel free to edit it at ~/.simplemailrc (becareful of unwanted spaces!)\n");
 
 }
