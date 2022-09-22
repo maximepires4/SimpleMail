@@ -4,7 +4,7 @@
 # Commands
 CP = cp
 RM = rm
-RMFLAG = -f
+FFLAG = -f
 GZIP = gzip
 
 # C Compiler (Default: gcc)
@@ -28,14 +28,14 @@ build: $(SOURCE)
 
 maninstall:
 	$(CP) docs/$(PROGNAME).man1 docs/$(PROGNAME).1
-	$(GZIP) docs/$(PROGNAME).1
+	$(GZIP) $(FFLAG) docs/$(PROGNAME).1
 	$(CP) docs/$(PROGNAME).1.gz $(MANLOC)
 
 install: build
 	$(CP) $(OUT) $(PROGLOC)
 
 clean:
-	$(RM) $(RMFLAG) $(OUT) docs/$(PROGNAME).1.gz
+	$(RM) $(FFLAG) $(OUT) docs/$(PROGNAME).1.gz
 
 uninstall:
 	$(RM) $(PROGLOC)/$(OUT) $(MANLOC)/$(PROGNAME).1.gz
