@@ -15,12 +15,12 @@
 #include <time.h>
 #include <stdbool.h>
 
-#define OPTSTR "hvc:b:a:"
-#define USAGE_FMT "%s [-h] [-v] [-c carbonCopy] [-b blindCarbonCopy] [-a attachmentFile] TO SUBJECT CONTENT\n"
+#define OPTSTR "rhvc:b:a:"
 #define ERR_FOPEN_CONFIG "fopen(config, r)"
 #define ERR_SENDMAIL "Error sending the mail"
 #define DEFAULT_PROGNAME "simplemail"
 #define DATE_LENGTH 31
+#define MAX_SIZE 100
 
 extern int errno;
 extern char *optarg;
@@ -40,27 +40,33 @@ typedef struct {
 	char	*attachment;
 } mail_t;
 
-void usage(char *progname, int opt);
+void usage(int status);
 int sendmail(const mail_t *mail, bool verbose);
 char* reformat_mail(const char* str, bool verbose);
 char* generate_header_text(const mail_t *mail, bool verbose);
-mail_t *handle_config();
-mail_t *read_config(const char *config_file);
-void create_config();
-void remove_spaces(char *str);
+void generate_mail_from_config(mail_t *mail, bool reload);
+void read_config(mail_t *mail, const char *config_file);
+void create_config(const char *config_file);
+void remove_trailing_space(char *str);
 
 int main(int argc, char *argv[]){
 	int opt;
 	bool verbose = false;
-	mail_t *mail = handle_config();
+	bool reload = false;
+
+	mail_t *mail = calloc(1, sizeof(mail_t));
 
 	opterr = 0;
 
 	while((opt = getopt(argc, argv, OPTSTR)) != EOF){
 		switch(opt) {
 			case 'h':
-				usage(basename(argv[0]), opt);
+				usage(EXIT_SUCCESS);
 				/* NOTREACHED */
+				break;
+
+			case 'r':
+				reload = true;
 				break;
 			
 			case 'v':
@@ -76,16 +82,24 @@ int main(int argc, char *argv[]){
 				break;
 
 			case 'a':
+				mail->attachment = malloc(strlen(optarg) + 1);
 				mail->attachment = optarg;
 				break;
+				
+			default:
+				fprintf(stderr, DEFAULT_PROGNAME": Invalid option -- '%s'\n",optarg);
+				usage(EXIT_FAILURE);
 		}
 	}
+
+	generate_mail_from_config(mail, reload);
 
 	argc -= optind;
 	argv += optind;
 
 	if(argc != 3){
-		usage(basename(argv[0]), opt);
+		fprintf(stderr, DEFAULT_PROGNAME": Too few arguments\n");
+		usage(EXIT_FAILURE);
 		/* NOTREACHED */
 	}
 
@@ -110,18 +124,35 @@ int main(int argc, char *argv[]){
 	free(mail->to);
 	if(mail->cc) free(mail->cc);
 	if(mail->bcc) free(mail->bcc);
+	if(mail->attachment) free(mail->attachment);
 	free(mail);
 
-	if(verbose) {
-		printf("SENDING MAIL: Successful\n");
-	}
+	printf(DEFAULT_PROGNAME": Successful\n");
 
 	return EXIT_SUCCESS;
 }
 
-void usage(char *progname, int opt){
-	fprintf(stderr, USAGE_FMT, progname?progname:DEFAULT_PROGNAME);
-	exit(EXIT_FAILURE);
+void usage(int status){
+	if(status != EXIT_SUCCESS) {
+		fprintf(stderr, "Try '"DEFAULT_PROGNAME" -h' for more information\n");
+	} else {
+		printf("Usage: "DEFAULT_PROGNAME" [OPTION]... TO SUBJECT CONTENT\n");
+		printf("simplemail send an email to the address specified in TO, with the subject specified in SUBJECT and the content specified in CONTENT. Running simplemail for the first time causes the program to ask for the mail informations. These informations are saved at ~/.simplemailrc and won't be re-asked unless parameter -r is specified.\n");
+		printf("\nParameters:\n\
+			       	-r			Erases the config file and ask for the mail informations.\n\
+				-h			Shows help.\n\
+				-v			Shows what the program is doing.\n\
+				-c [carbon-copy]	Add the specified address to the carbon copy.\n\
+				-b [blind-carbon-copy]	Add the specified address to the blind carbon.\n\
+				-a [attachment-file]	Add the specified file to the attachment.\n\
+				");
+		printf("\nPlease report any issues at the following issue tracker: https://github.com/Marouk4/SimpleMail/issues\n");
+		printf("\nCopyright © 2022 Maxime Pires. License GPLv3+: GNU GPL version 3 or later <https://gnu.org/licenses/gpl.html>.\nThis is free software: you are free to change and redistribute it.  There is NO WARRANTY, to the extent permitted by law.\n");
+		printf("\nGitHub page: https://github.com/Marouk4/SimpleMail\n");
+	}
+
+	exit(status);
+	/* NOTREACHED */
 }
 
 int sendmail(const mail_t *mail, bool verbose){
@@ -198,31 +229,8 @@ int sendmail(const mail_t *mail, bool verbose){
 
 char* generate_header_text(const mail_t *mail, bool verbose){
 	if (verbose) printf("GENERATING HEADER...\n");
-
-	char *cc_buffer;
-	char *bcc_buffer;
-
-	if(mail->cc){
-		cc_buffer = mail->cc;
-	} else {
-		cc_buffer = malloc(sizeof(char));
-		if(!cc_buffer) {
-			fprintf(stderr, "Error allocating memory for cc_buffer");
-		}
-		cc_buffer = "";
-	}
-
-	if(mail->bcc){
-		bcc_buffer = mail->bcc;
-	} else {
-		bcc_buffer = malloc(sizeof(char));
-		if(!bcc_buffer) {
-			fprintf(stderr, "Error allocating memory for bcc_buffer");
-		}
-		bcc_buffer = "";
-	}
-
-	char *header_buffer = malloc((43 + DATE_LENGTH + strlen(mail->to) + strlen(mail->from) + strlen(mail->name) + strlen(cc_buffer) + strlen(bcc_buffer) + strlen(mail->subject) + 1) * sizeof(char));
+		
+	char *header_buffer = calloc(43 + DATE_LENGTH + strlen(mail->to) + strlen(mail->from) + strlen(mail->name) + (mail->cc ? strlen(mail->cc) : 0) + (mail->bcc ? strlen(mail->bcc) : 0) + strlen(mail->subject) + 1, sizeof(char));
 
 	if(!header_buffer) {
 		fprintf(stderr, "Error allocating memory for header_buffer");
@@ -234,11 +242,12 @@ char* generate_header_text(const mail_t *mail, bool verbose){
         char date_buffer[DATE_LENGTH];
         strftime(date_buffer, DATE_LENGTH, "%a, %d %b %Y %H:%M:%S %z", pTime);
 
-	sprintf(header_buffer, "Date: %s\nTo: %s\nFrom: %s (%s)\nCc: %s\nBcc: %s\nSubject: %s\n", date_buffer, mail->to, mail->from, mail->name, cc_buffer, bcc_buffer, mail->subject);
+	sprintf(header_buffer, "Date: %s\nTo: %s\nFrom: %s (%s)\nCc: %s\nBcc: %s\nSubject: %s\n", date_buffer, mail->to, mail->from, mail->name, mail->cc ? mail->cc : "", mail->bcc ? mail->bcc : "", mail->subject);
 
 	if(verbose) {
 		printf("%s\nGENERATING HEADER: Done\n", header_buffer);
 	}
+
 	return header_buffer;
 }
 
@@ -250,7 +259,7 @@ char* reformat_mail(const char* str, bool verbose){
 	} else {
 		if(verbose) printf("CONVERTING: %s -> <%s>\n",str,str);
 		
-		mail_address = malloc(sizeof(char) * (strlen(str) + 2) +1);
+		mail_address = calloc(strlen(str) + 2 +1, sizeof(char));
 
 		if(!mail_address){
 			fprintf(stderr, "Error allocating memory while reformating mail");
@@ -267,39 +276,39 @@ char* reformat_mail(const char* str, bool verbose){
 	return mail_address;
 }
 
-mail_t *handle_config(){
+void generate_mail_from_config(mail_t *mail, bool reload){
 
-	char *config_file = malloc(strlen(getenv("HOME") + strlen(DEFAULT_PROGNAME) + 4 + 1));
-	strcat(config_file, getenv("HOME"));
-	strcat(config_file, "/."DEFAULT_PROGNAME"rc");
+	char *config_file = calloc(strlen(getenv("HOME")) + strlen(DEFAULT_PROGNAME) + 4 + 1, sizeof(char));
+	sprintf(config_file, "%s/."DEFAULT_PROGNAME"rc", getenv("HOME"));
 
-//	if(!access(DEFAULT_CONFIG_FILE, F_OK)) create_config();
+	if(access(config_file, F_OK) == -1 || reload) {
+		create_config(config_file);
+	}
 
-	return read_config(config_file);
+	read_config(mail, config_file);
+
+	free(config_file);
 }
 
-mail_t *read_config(const char *config_file){
+void read_config(mail_t *mail, const char *config_file){
 	FILE *fp;
-	char buffer[256];
+	char buffer[MAX_SIZE];
 
 	if(!(fp = fopen(config_file,"r"))) {
 		perror(ERR_FOPEN_CONFIG);
 		exit(EXIT_FAILURE);
 	}
 
-	mail_t *mail = malloc(sizeof(mail_t));
-
 	while(!feof(fp)){
-		fgets(buffer, 256, fp);
-
-		char *key = malloc(256), *value = malloc(256);
+		fgets(buffer, MAX_SIZE, fp);
 		
 		if(buffer[0] == '#') continue;
 
+		char *key = calloc(MAX_SIZE, sizeof(char)), *value = calloc(MAX_SIZE, sizeof(char));
 		bool line_started = false;
 		int separator_index = -1;
-
 		int i = 0, start_offset = 0;
+
 		for(; buffer[i] != '\n'; i++){
 
 			if(buffer[i] == ' ' && !line_started) {
@@ -308,9 +317,11 @@ mail_t *read_config(const char *config_file){
 			}
 			if(buffer[i] == '#') break;
 			if(buffer[i] == '=') {
-				key = (char *)realloc(key, i * sizeof(char));
-				remove_spaces(key);
+				remove_trailing_space(key);
+				key = realloc(key, strlen(key) + 1);
 				separator_index = i;
+				line_started = false;
+				start_offset = 0;
 				continue;
 			}
 
@@ -319,56 +330,98 @@ mail_t *read_config(const char *config_file){
 			if(separator_index == -1){
 				key[i-start_offset] = buffer[i];
 			} else {
-				value[i-separator_index-1] = buffer[i];
+				value[i-start_offset-separator_index-1] = buffer[i];
 			}
 		}
 
-		value = (char *)realloc(value, (i-separator_index-1));
-		printf("|%s|\n",value);
-		remove_spaces(value);
-		printf("|%s|\n",value);
-
-		//printf("|%s| |%s|\n",key,value);
+		value = realloc(value, strlen(value) + 1);
+		remove_trailing_space(value);
 
 		if(strcmp(key,"NAME") == 0) {
-			mail->name = malloc(strlen(value) + 1);
 			mail->name = strdup(value);
 
 		} else if(strcmp(key,"USERNAME") == 0) {
-			mail->username = malloc(strlen(value) + 1);
 			mail->username = strdup(value);
 
 		} else if(strcmp(key,"PASSWORD") == 0) {
-			mail->password = malloc(strlen(value) + 1);
 			mail->password = strdup(value);
 
 		} else if(strcmp(key,"MAIL") == 0) {
 			mail->from = reformat_mail(value, false);
 
 		} else if(strcmp(key,"SMTP") == 0) {
-			mail->smtp = malloc(strlen(value) + 1);
 			mail->smtp = strdup(value);
 		}
 
+		free(key);
+		free(value);
 	}
 
-	return mail;
+	fclose(fp);
+
+	if(!mail->name || !mail->username || !mail->password || !mail->from || !mail->smtp){
+		fprintf(stderr, DEFAULT_PROGNAME": Error parsing config file\nTry '"DEFAULT_PROGNAME" -r' for reloading the config file\n");
+		exit(EXIT_FAILURE);
+	}
 }
 
-void remove_spaces(char *str){
+void remove_trailing_space(char *str){
 
-        int spaces_start = 0, spaces_end = 0;
+	if(!str) return;
 
-	printf("<%c>\n",str[0]);
+        int trailing_space_count = 0;
 
-        while(str[spaces_start] == ' '){
-                spaces_start++;
+        while(str[strlen(str)-trailing_space_count-1] == ' '){
+                trailing_space_count++;
         }
 
-        while(str[strlen(str)-spaces_end-1] == ' '){
-                spaces_end++;
+	str[strlen(str)-trailing_space_count] = '\0';
+}
+
+void create_config(const char *config_file){
+	
+	printf("***** No config file detected, creating one *****\n");
+	
+	FILE *fp;
+
+	if(!(fp = fopen(config_file,"w"))) {
+                perror(ERR_FOPEN_CONFIG);
+                exit(EXIT_FAILURE);
         }
 
-        str += spaces_start;
-        str[strlen(str)-spaces_end] = '\0';
+	char buffer[MAX_SIZE];
+
+	printf("Please enter your name: ");
+	fgets(buffer, MAX_SIZE, stdin);
+	buffer[strcspn(buffer, "\n")] = 0;
+	fprintf(fp, "NAME=%s", buffer);
+
+	printf("Please enter your username: ");
+	fgets(buffer, MAX_SIZE, stdin);
+	buffer[strcspn(buffer, "\n")] = 0;
+	fprintf(fp, "\nUSERNAME=%s", buffer);
+
+	printf("Please enter your password: ");
+	fgets(buffer, MAX_SIZE, stdin);
+	buffer[strcspn(buffer, "\n")] = 0;
+	fprintf(fp, "\nPASSWORD=%s", buffer);
+
+	printf("Please enter your mail: ");
+	fgets(buffer, MAX_SIZE, stdin);
+	buffer[strcspn(buffer, "\n")] = 0;
+	fprintf(fp, "\nMAIL=%s", buffer);
+
+	printf("Please enter the smtp server: ");
+	fgets(buffer, MAX_SIZE, stdin);
+	buffer[strcspn(buffer, "\n")] = 0;
+	fprintf(fp, "\nSMTP=%s", buffer);
+
+	printf("Please enter the port: ");
+	fgets(buffer, MAX_SIZE, stdin);
+	buffer[strcspn(buffer, "\n")] = 0;
+	fprintf(fp,":%s", buffer);
+
+	fclose(fp);
+	printf("The config file has been successfully created, feel free to edit it at ~/.simplemailrc (becareful of unwanted spaces!)\n");
+
 }
