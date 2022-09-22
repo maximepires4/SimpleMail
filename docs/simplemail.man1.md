@@ -11,6 +11,8 @@ simplemail - Sending mail via terminal
 # DESCRIPTION
 *simplemail* send an email to the address specified in *TO*, with the subject specified in *SUBJECT* and the content specified in *CONTENT*. Running *simplemail* for the first time causes the program to ask for the mail informations. These informations are saved at *~/.simplemailrc* and won't be re-asked unless parameter *-r* is specified.
 
+*TO* can be specified as a simple parameter (e.g mail@mail.com) or as a string with angle brackets (e.g "<mail@mail.com>"). As a result, it is possible to send the mail to several addresses (e.g "<mail@mail.com><mail@mail.org>").
+
 # OPTIONS
 **-r**
 : Erases the config file and ask for the mail informations.
@@ -22,10 +24,10 @@ simplemail - Sending mail via terminal
 : Shows what the program is doing.
 
 **-c** *carbon-copy*
-: Add the specified address to the carbon copy.
+: Add the specified address to the carbon copy. Can be transformed into a multiple addresses string using angle brackets.
 
 **-b** *blind-carbon-copy*
-: Add the specified address to the blind carbon copy.
+: Add the specified address to the blind carbon copy. Can be transformed into a multiple addresses string using angle brackets.
 
 **-a** *attachment-file*
 : Add the specified file to the attachment.
