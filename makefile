@@ -27,15 +27,15 @@ build: $(SOURCE)
 	$(CC) $(SOURCE) $(CFLAG) $(LIBCURL) -o $(OUT)
 
 maninstall:
-	$(CP) $(PROGNAME).man1 $(PROGNAME).1
-	$(GZIP) $(PROGNAME).1
-	$(CP) $(PROGNAME).1.gz $(MANLOC)
+	$(CP) docs/$(PROGNAME).man1 docs/$(PROGNAME).1
+	$(GZIP) docs/$(PROGNAME).1
+	$(CP) docs/$(PROGNAME).1.gz $(MANLOC)
 
 install: build
 	$(CP) $(OUT) $(PROGLOC)
 
 clean:
-	$(RM) $(RMFLAG) $(OUT) $(PROGNAME).1.gz
+	$(RM) $(RMFLAG) $(OUT) docs/$(PROGNAME).1.gz
 
 uninstall:
 	$(RM) $(PROGLOC)/$(OUT) $(MANLOC)/$(PROGNAME).1.gz
