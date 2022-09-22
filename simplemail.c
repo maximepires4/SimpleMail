@@ -356,6 +356,11 @@ void read_config(mail_t *mail, const char *config_file){
 	}
 
 	fclose(fp);
+
+	if(!mail->name || !mail->username || !mail->password || !mail->from || !mail->smtp){
+		fprintf(stderr, DEFAULT_PROGNAME": Error parsing config file\nTry '"DEFAULT_PROGNAME" -r' for reloading the config file\n");
+		exit(EXIT_FAILURE);
+	}
 }
 
 void remove_trailing_space(char *str){
