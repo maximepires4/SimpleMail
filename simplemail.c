@@ -261,7 +261,7 @@ void generate_mail_from_config(mail_t *mail, bool reload){
 	char *config_file = calloc(strlen(getenv("HOME")) + strlen(DEFAULT_PROGNAME) + 4 + 1, sizeof(char));
 	sprintf(config_file, "%s/."DEFAULT_PROGNAME"rc", getenv("HOME"));
 
-	if(access(config_file, F_OK)) {
+	if(access(config_file, F_OK) == 0 || reload) {
 		create_config(config_file);
 	}
 
