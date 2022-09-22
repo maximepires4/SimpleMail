@@ -15,7 +15,7 @@
 #include <time.h>
 #include <stdbool.h>
 
-#define OPTSTR "rhvc:b:a:"
+#define OPTSTR "rhvc:b:a"
 #define ERR_FOPEN_CONFIG "fopen(config, r)"
 #define ERR_SENDMAIL "Error sending the mail"
 #define DEFAULT_PROGNAME "simplemail"
@@ -37,7 +37,8 @@ typedef struct {
 	char	*bcc;
 	char	*subject;
 	char	*body;
-	char	*attachment;
+	char	**attachment;
+	int	attachment_number;
 } mail_t;
 
 void usage(int status);
@@ -53,6 +54,7 @@ int main(int argc, char *argv[]){
 	int opt;
 	bool verbose = false;
 	bool reload = false;
+	bool attachment = false;
 
 	mail_t *mail = calloc(1, sizeof(mail_t));
 
@@ -82,8 +84,9 @@ int main(int argc, char *argv[]){
 				break;
 
 			case 'a':
-				mail->attachment = malloc(strlen(optarg) + 1);
-				mail->attachment = optarg;
+				attachment = true;
+//				mail->attachment = malloc(strlen(optarg) + 1);
+//				mail->attachment = optarg;
 				break;
 				
 			default:
@@ -97,7 +100,7 @@ int main(int argc, char *argv[]){
 	argc -= optind;
 	argv += optind;
 
-	if(argc != 3){
+	if((argc != 3 && !attachment ) || (attachment && argc <= 3)){
 		fprintf(stderr, DEFAULT_PROGNAME": Too few arguments\n");
 		usage(EXIT_FAILURE);
 		/* NOTREACHED */
@@ -106,6 +109,16 @@ int main(int argc, char *argv[]){
 	mail->to = reformat_mail(argv[0], verbose);
 	mail->subject = argv[1];
 	mail->body = argv[2];
+
+	if(attachment) {
+		mail->attachment_number = argc - 3;
+		mail->attachment = malloc(mail->attachment_number * sizeof(*mail->attachment));
+
+		for(int i = 3; i < argc; i++) {
+//			mail->attachment[i-3] = malloc(strlen(argv[i] + 1));
+			mail->attachment[i-3] = argv[i];
+		}
+	}
 
 	if(verbose) {
 		printf("SENDING MAIL...\n");
@@ -203,10 +216,12 @@ int sendmail(const mail_t *mail, bool verbose){
 		curl_mime_type(part, "multipart/alternative");
 		slist = curl_slist_append(NULL, "Content-Disposition: inline");
 		curl_mime_headers(part, slist, 1);
-
-		if(mail->attachment) {
-			part = curl_mime_addpart(mime);
-			curl_mime_filedata(part, mail->attachment);
+		
+		if(mail->attachment) {		
+			for(int i = 0; i < mail->attachment_number; i++){
+				part = curl_mime_addpart(mime);
+				curl_mime_filedata(part, mail->attachment[i]);
+			}	
 		}
 		
 		curl_easy_setopt(curl, CURLOPT_MIMEPOST, mime);

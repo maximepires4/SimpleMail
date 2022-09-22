@@ -20,7 +20,7 @@ Supports **attachment**, **carbon copy** and **blind carbon copy**.
 
 * *Subject* and *content* can be written as string for sentences.
 * *To*, *carbon copy* and *blind carbon copy* can be multiplied by using string and brackets (e.g "\<mail@mail.com>\<mail@mail.org>")
-* *Attachment* specifying the file's name.
+* Multiple *attachments* specifying the files's name.
 
 ## Installation
 
@@ -67,16 +67,20 @@ Add the specified address to the carbon copy. Can be transformed into a multiple
 
 Add the specified address to the blind carbon copy. Can be transformed into a multiple addresses string using angle brackets.
 
-​	**-a** *attachment-file*
+​	**-a**
 
-Add the specified file to the attachment.
+Add the specified file(s) to the attachment. The program will understand as a filename ALL the arguments from after *CONTENT* to the end.
 
 ## Examples
-
 ```bash
 simplemail maximepires4@gmail.com "Hello World!" "Lorem ispum..."
 ```
 Send a mail to maximepires4@gmail.com, with the subject "Hello World!" and the content "Lorem ipsum...".
+
+```bash
+simplemail -a maximepires4@gmail.com "Hello World!" "Lorem ispum..." todo.txt program.c
+```
+Send a mail to maximepires4@gmail.com, with the subject "Hello World!" the content "Lorem ipsum...", and the attachments "todo.txt" and "program.c".
 
 ```bash
 simplemail -h
@@ -95,7 +99,9 @@ Please report any issues to the following issue tracker: https://github.com/Maro
 - Add Markdown or HTML support.
 - Open mail editing screen if no parameters are specified (like `git commit` does).
 - Multiple TOs, CCs and BCCs without specifying angle brackets.
-- Multiple attachments
+
+### Already added
+- Multiple attachments (Done in 0.2.0)
 
 ## Contributing
 Pull requests are welcome. For major changes, please open an issue first to discuss what you would like to change.

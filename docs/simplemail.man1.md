@@ -1,4 +1,4 @@
-% SIMPLEMAIL(1) 0.1.0
+% SIMPLEMAIL(1) 0.2.0
 % Maxime Pires
 % September 2022
 
@@ -29,10 +29,13 @@ simplemail - Sending mail via terminal
 **-b** *blind-carbon-copy*
 : Add the specified address to the blind carbon copy. Can be transformed into a multiple addresses string using angle brackets.
 
-**-a** *attachment-file*
-: Add the specified file to the attachment.
+**-a**
+: Add the specified file(s) to the attachment. The program will understand as a filename ALL the arguments from after *CONTENT* to the end.
 
 # EXAMPLES
+**simplemail -a maximepires4@gmail.com "Hello World!" "Lorem ispum..." todo.txt program.c**
+: Send a mail to maximepires4@gmail.com, with the subject "Hello World!" the content "Lorem ipsum...", and the attachments "todo.txt" and "program.c".
+
 **simplemail maximepires4@gmail.com "Hello World!" "Lorem ispum..."**
 : Send a mail to maximepires4@gmail.com, with the subject "Hello World!" and the content "Lorem ipsum...".
 
