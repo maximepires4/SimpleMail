@@ -137,7 +137,7 @@ void usage(int status){
 		fprintf(stderr, "Try '"DEFAULT_PROGNAME" -h' for more information\n");
 	} else {
 		printf("Usage: "DEFAULT_PROGNAME" [OPTION]... TO SUBJECT CONTENT\n");
-		printf("S*simplemail* send an email to the address specified in *TO*, with the subject specified in *SUBJECT* and the content specified in *CONTENT*. Running *simplemail* for the first time causes the program to ask for the mail informations. These informations are saved at *~/.simplemailrc* and won't be re-asked unless parameter *-r* is specified.\n");
+		printf("simplemail send an email to the address specified in TO, with the subject specified in SUBJECT and the content specified in CONTENT. Running simplemail for the first time causes the program to ask for the mail informations. These informations are saved at ~/.simplemailrc and won't be re-asked unless parameter -r is specified.\n");
 		printf("\nParameters:\n\
 			       	-r			Erases the config file and ask for the mail informations.\n\
 				-h			Shows help.\n\
