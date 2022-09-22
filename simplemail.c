@@ -16,7 +16,6 @@
 #include <stdbool.h>
 
 #define OPTSTR "rhvc:b:a:"
-#define USAGE_FMT "%s [-r] [-h] [-v] [-c carbonCopy] [-b blindCarbonCopy] [-a attachmentFile] TO SUBJECT CONTENT\n"
 #define ERR_FOPEN_CONFIG "fopen(config, r)"
 #define ERR_SENDMAIL "Error sending the mail"
 #define DEFAULT_PROGNAME "simplemail"
@@ -138,14 +137,17 @@ void usage(int status){
 		fprintf(stderr, "Try '"DEFAULT_PROGNAME" -h' for more information\n");
 	} else {
 		printf("Usage: "DEFAULT_PROGNAME" [OPTION]... TO SUBJECT CONTENT\n");
-		printf("Send a mail with a subject and a content to an address.\nThese 3 arg are specified in the call of the program.\nRunning the program first will ask for your mail information, which will be saved in '~/.simplemailrc'.\nOnce these parameters saved, the program will attempt to read them at each starts.\n");
+		printf("S*simplemail* send an email to the address specified in *TO*, with the subject specified in *SUBJECT* and the content specified in *CONTENT*. Running *simplemail* for the first time causes the program to ask for the mail informations. These informations are saved at *~/.simplemailrc* and won't be re-asked unless parameter *-r* is specified.\n");
 		printf("\nParameters:\n\
-			       	-r			Erase the config file and ask for the parameters.\n\
-				-h			Print the help.\n\
-				-v			Print what the program is doing.\n\
-				-c [carbon-copy]	Add the specified address to the carbon copy of the mail.\n\
-				-b [blind-carbon-copy]	Add the specified address to the blind carbon copy of the mail.\n\
+			       	-r			Erases the config file and ask for the mail informations.\n\
+				-h			Shows help.\n\
+				-v			Shows what the program is doing.\n\
+				-c [carbon-copy]	Add the specified address to the carbon copy.\n\
+				-b [blind-carbon-copy]	Add the specified address to the blind carbon.\n\
+				-a [attachment-file]	Add the specified file to the attachment.\n\
 				");
+		printf("\nPlease report any issues at the following issue tracker: https://github.com/Marouk4/SimpleMail/issues\n");
+		printf("\nCopyright © 2022 Maxime Pires. License GPLv3+: GNU GPL version 3 or later <https://gnu.org/licenses/gpl.html>.\nThis is free software: you are free to change and redistribute it.  There is NO WARRANTY, to the extent permitted by law.\n");
 		printf("\nGitHub page: https://github.com/Marouk4/SimpleMail\n");
 	}
 
