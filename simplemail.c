@@ -45,7 +45,7 @@ void usage(char *progname, int opt);
 int sendmail(const mail_t *mail, bool verbose);
 char* reformat_mail(const char* str, bool verbose);
 char* generate_header_text(const mail_t *mail, bool verbose);
-mail_t *handle_config();
+mail_t *generate_mail_from_config();
 void read_config(mail_t *mail, const char *config_file);
 void create_config(const char *config_file);
 void remove_trailing_space(char *str);
@@ -53,7 +53,7 @@ void remove_trailing_space(char *str);
 int main(int argc, char *argv[]){
 	int opt;
 	bool verbose = false;
-	mail_t *mail = handle_config();
+	mail_t *mail = generate_mail_from_config();
 
 	opterr = 0;
 
@@ -199,33 +199,6 @@ int sendmail(const mail_t *mail, bool verbose){
 
 char* generate_header_text(const mail_t *mail, bool verbose){
 	if (verbose) printf("GENERATING HEADER...\n");
-
-	/*
-	char *cc_buffer;
-	char *bcc_buffer;
-	
-	if(mail->cc){
-		cc_buffer = strdup(mail->cc);
-	} else {
-		cc_buffer = malloc(1);
-		if(!cc_buffer) {
-			fprintf(stderr, "Error allocating memory for cc_buffer");
-		}
-		cc_buffer = "";
-	}
-
-	if(mail->bcc){
-		bcc_buffer = strdup(mail->bcc);
-	} else {
-		bcc_buffer = malloc(1);
-		if(!bcc_buffer) {
-			fprintf(stderr, "Error allocating memory for bcc_buffer");
-		}
-		bcc_buffer = "";
-	}
-
-	*/
-
 		
 	char *header_buffer = calloc(43 + DATE_LENGTH + strlen(mail->to) + strlen(mail->from) + strlen(mail->name) + (mail->cc ? strlen(mail->cc) : 0) + (mail->bcc ? strlen(mail->bcc) : 0) + strlen(mail->subject) + 1, sizeof(char));
 
@@ -273,12 +246,10 @@ char* reformat_mail(const char* str, bool verbose){
 	return mail_address;
 }
 
-mail_t *handle_config(){
+mail_t *generate_mail_from_config(){
 
 	char *config_file = calloc(strlen(getenv("HOME")) + strlen(DEFAULT_PROGNAME) + 4 + 1, sizeof(char));
 	sprintf(config_file, "%s/."DEFAULT_PROGNAME"rc", getenv("HOME"));
-//	strcat(config_file, getenv("HOME"));
-//	strcat(config_file, "/."DEFAULT_PROGNAME"rc");
 
 	if(access(config_file, F_OK)) {
 		create_config(config_file);
