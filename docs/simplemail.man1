@@ -45,9 +45,16 @@ Add the specified address to the blind carbon copy.
 Can be transformed into a multiple addresses string using angle
 brackets.
 .TP
-.B \f[B]\-a\f[R] \f[I]attachment\-file\f[R]
-Add the specified file to the attachment.
+.B \f[B]\-a\f[R]
+Add the specified file(s) to the attachment.
+The program will understand as a filename ALL the arguments from after
+\f[I]CONTENT\f[R] to the end.
 .SH EXAMPLES
+.TP
+.B \f[B]simplemail \-a maximepires4\[at]gmail.com \[lq]Hello World!\[rq] \[lq]Lorem ispum\&...\[rq] todo.txt program.c\f[R]
+Send a mail to maximepires4\[at]gmail.com, with the subject \[lq]Hello
+World!\[rq] the content \[lq]Lorem ipsum\&...\[rq], and the attachments
+\[lq]todo.txt\[rq] and \[lq]program.c\[rq].
 .TP
 .B \f[B]simplemail maximepires4\[at]gmail.com \[lq]Hello World!\[rq] \[lq]Lorem ispum\&...\[rq]\f[R]
 Send a mail to maximepires4\[at]gmail.com, with the subject \[lq]Hello
