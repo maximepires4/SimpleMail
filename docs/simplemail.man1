@@ -18,6 +18,12 @@ Running \f[I]simplemail\f[R] for the first time causes the program to
 ask for the mail informations.
 These informations are saved at \f[I]\[ti]/.simplemailrc\f[R] and
 won\[cq]t be re\-asked unless parameter \f[I]\-r\f[R] is specified.
+.PP
+\f[I]TO\f[R] can be specified as a simple parameter (e.g
+mail\[at]mail.com) or as a string with angle brackets (e.g
+\[lq]<mail@mail.com>\[rq]).
+As a result, it is possible to send the mail to several addresses (e.g
+\[lq]<mail@mail.com><mail@mail.org>\[rq]).
 .SH OPTIONS
 .TP
 .B \f[B]\-r\f[R]
@@ -31,9 +37,13 @@ Shows what the program is doing.
 .TP
 .B \f[B]\-c\f[R] \f[I]carbon\-copy\f[R]
 Add the specified address to the carbon copy.
+Can be transformed into a multiple addresses string using angle
+brackets.
 .TP
 .B \f[B]\-b\f[R] \f[I]blind\-carbon\-copy\f[R]
 Add the specified address to the blind carbon copy.
+Can be transformed into a multiple addresses string using angle
+brackets.
 .TP
 .B \f[B]\-a\f[R] \f[I]attachment\-file\f[R]
 Add the specified file to the attachment.
