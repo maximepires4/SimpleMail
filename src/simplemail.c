@@ -58,9 +58,19 @@ int main(int argc, char *argv[]){
 
 	mail_t *mail = calloc(1, sizeof(mail_t));
 
+	struct option long_options[] = {
+		{"reload", no_argument, NULL, 'r'},
+		{"help", no_argument, NULL, 'h'},
+		{"verbose", no_argument, NULL, 'v'},
+		{"cc", required_argument, NULL, 'c'},
+		{"bcc", required_argument, NULL, 'b'},
+		{"attachment", no_argument, NULL, 'a'},
+		{0,0,0,0}
+	};
+
 	opterr = 0;
 
-	while((opt = getopt(argc, argv, OPTSTR)) != EOF){
+	while((opt = getopt_long(argc, argv, OPTSTR, long_options, NULL)) != EOF){
 		switch(opt) {
 			case 'h':
 				usage(EXIT_SUCCESS);
@@ -85,8 +95,6 @@ int main(int argc, char *argv[]){
 
 			case 'a':
 				attachment = true;
-//				mail->attachment = malloc(strlen(optarg) + 1);
-//				mail->attachment = optarg;
 				break;
 				
 			default:

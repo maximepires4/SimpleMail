@@ -1,4 +1,4 @@
-% SIMPLEMAIL(1) 0.2.0
+% SIMPLEMAIL(1) 0.3.0
 % Maxime Pires
 % September 2022
 
@@ -14,22 +14,22 @@ simplemail - Sending mail via terminal
 *TO* can be specified as a simple parameter (e.g mail@mail.com) or as a string with angle brackets (e.g "<mail@mail.com>"). As a result, it is possible to send the mail to several addresses (e.g "<mail@mail.com><mail@mail.org>").
 
 # OPTIONS
-**-r**
+**-r**, **--reload**
 : Erases the config file and ask for the mail informations.
 
-**-h**
+**-h**, **--help**
 : Shows help.
 
-**-v**
+**-v**, **--verbose**
 : Shows what the program is doing.
 
-**-c** *carbon-copy*
+**-c**, **--cc** *carbon-copy*
 : Add the specified address to the carbon copy. Can be transformed into a multiple addresses string using angle brackets.
 
-**-b** *blind-carbon-copy*
+**-b**, **--bcc** *blind-carbon-copy*
 : Add the specified address to the blind carbon copy. Can be transformed into a multiple addresses string using angle brackets.
 
-**-a**
+**-a**, **--attachment**
 : Add the specified file(s) to the attachment. The program will understand as a filename ALL the arguments from after *CONTENT* to the end.
 
 # EXAMPLES
@@ -39,10 +39,10 @@ simplemail - Sending mail via terminal
 **simplemail maximepires4@gmail.com "Hello World!" "Lorem ispum..."**
 : Send a mail to maximepires4@gmail.com, with the subject "Hello World!" and the content "Lorem ipsum...".
 
-**simplemail -h**
+**simplemail -h | simplemal --help**
 : Shows help.
 
-**simplemail -r**
+**simplemail -r | simplemail --reload**
 : Reconfigure config file.
 
 # EXIT VALUES
