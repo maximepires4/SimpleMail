@@ -160,12 +160,12 @@ void usage(int status){
 		printf("Usage: "DEFAULT_PROGNAME" [OPTION]... TO SUBJECT CONTENT\n");
 		printf("simplemail send an email to the address specified in TO, with the subject specified in SUBJECT and the content specified in CONTENT. Running simplemail for the first time causes the program to ask for the mail informations. These informations are saved at ~/.simplemailrc and won't be re-asked unless parameter -r is specified.\n");
 		printf("\nParameters:\n\
-			       	-r			Erases the config file and ask for the mail informations.\n\
-				-h			Shows help.\n\
-				-v			Shows what the program is doing.\n\
-				-c [carbon-copy]	Add the specified address to the carbon copy.\n\
-				-b [blind-carbon-copy]	Add the specified address to the blind carbon.\n\
-				-a [attachment-file]	Add the specified file to the attachment.\n\
+			       	-r, --reload				Erases the config file and ask for the mail informations.\n\
+				-h, --help				Shows help.\n\
+				-v, --verbose				Shows what the program is doing.\n\
+				-c, --cc [carbon-copy]			Add the specified address to the carbon copy.\n\
+				-b, --bcc [blind-carbon-copy]		Add the specified address to the blind carbon.\n\
+				-a, --attachment [attachment-file]	Add the specified file to the attachment.\n\
 				");
 		printf("\nPlease report any issues at the following issue tracker: https://github.com/Marouk4/SimpleMail/issues\n");
 		printf("\nCopyright © 2022 Maxime Pires. License GPLv3+: GNU GPL version 3 or later <https://gnu.org/licenses/gpl.html>.\nThis is free software: you are free to change and redistribute it.  There is NO WARRANTY, to the extent permitted by law.\n");
