@@ -167,9 +167,9 @@ void usage(int status){
 				-b, --bcc [blind-carbon-copy]		Add the specified address to the blind carbon.\n\
 				-a, --attachment [attachment-file]	Add the specified file to the attachment.\n\
 				");
-		printf("\nPlease report any issues at the following issue tracker: https://github.com/Marouk4/SimpleMail/issues\n");
+		printf("\nPlease report any issues at the following issue tracker: https://github.com/maximepires4/SimpleMail/issues\n");
 		printf("\nCopyright © 2022 Maxime Pires. License GPLv3+: GNU GPL version 3 or later <https://gnu.org/licenses/gpl.html>.\nThis is free software: you are free to change and redistribute it.  There is NO WARRANTY, to the extent permitted by law.\n");
-		printf("\nGitHub page: https://github.com/Marouk4/SimpleMail\n");
+		printf("\nGitHub page: https://github.com/maximepires4/SimpleMail\n");
 	}
 
 	exit(status);
