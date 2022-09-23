@@ -8,8 +8,8 @@ Supports **attachment**, **carbon copy** and **blind carbon copy**.
 * [Features](#features)
 * [Installation](#installation)
 * [Uninstall](#uninstall)
+* [Parameters](#parameters)
 * [Usage](#usage)
-  * [Parameters](#parameters)
 * [Examples](#examples)
 * [Support](#support)
 * [Roadmap](#roadmap)
@@ -37,6 +37,23 @@ make clean # Optional
 ```bash
 sudo make uninstall
 ```
+
+## Parameters
+At first launch the program will ask for parameters and will store them at `~/.simplemailrc`.
+
+```
+NAME=Your Name				# e.g Maxime Pires
+USERNAME=yourusername			# e.g (for google) What is before the @gmail.com, like "mail" for "mail@gmail.com"
+PASSWORD=yourverysecretapppassword	# BEWARE: Do NOT use your real password here, prefer using app passwords
+MAIL=yourmailaddress			# e.g mail@gmail.com
+SMTP=smtpaddress:port			# e.g (for google) smtp.gmail.com:587
+```
+
+**A word on app passwords**:
+
+Search the web for your host.
+
+For example, follow this [link](https://support.google.com/accounts/answer/185833?hl=en) for setting up password applications for gmail addresses.
 
 ## Usage
 See [manpage](docs/simplemail.man1.md).
