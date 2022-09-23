@@ -62,7 +62,7 @@ For example, follow this [link](https://support.google.com/accounts/answer/18583
 See [manpage](docs/simplemail.man1.md).
 
 ## Support
-Please report any issues to the following issue tracker: https://github.com/Marouk4/SimpleMail/issues
+Please report any issues to the following issue tracker: https://github.com/maximepires4/SimpleMail/issues
 
 ## Roadmap
 - Add Markdown or HTML support.
