@@ -1,3 +1,7 @@
+# v1.0.0
+
+* Releasing officially the software
+
 ## v0.3.0
 
 * Long options
