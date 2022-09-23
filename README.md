@@ -9,6 +9,7 @@ Supports **attachment**, **carbon copy** and **blind carbon copy**.
 * [Installation](#installation)
 * [Uninstall](#uninstall)
 * [Parameters](#parameters)
+  * [Passwords](#passwords)
 * [Usage](#usage)
 * [Examples](#examples)
 * [Support](#support)
@@ -49,9 +50,11 @@ MAIL=yourmailaddress			# e.g mail@gmail.com
 SMTP=smtpaddress:port			# e.g (for google) smtp.gmail.com:587
 ```
 
-**A word on app passwords**:
+### Passwords
 
-Search the web for your host.
+**BEWARE**, do **NOT** use your real password, prefer using app passwords (Most hosts will refuses the connection with the real password anyway).
+
+For setting up app passwords, search the web for the right procedure for your host.
 
 For example, follow this [link](https://support.google.com/accounts/answer/185833?hl=en) for setting up password applications for gmail addresses.
 
