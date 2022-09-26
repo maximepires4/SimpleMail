@@ -276,7 +276,7 @@ void generate_header_text(char **header_buffer, const mail_t *mail, bool verbose
 char* reformat_mail(const char* str, bool verbose){
 	char *mail_address;
 
-	if(str[0] == '<' && str[strlen(str)-1] == '>') {	
+	if(str[0] == '<' && str[strlen(str)-1] == '>') {
 		mail_address = strdup(str);
 	} else {
 		if(verbose) printf("CONVERTING: %s -> <%s>\n",str,str);

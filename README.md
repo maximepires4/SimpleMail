@@ -21,7 +21,7 @@ Supports **attachment**, **carbon copy** and **blind carbon copy**.
 ## Features
 
 * *Subject* and *content* can be written as string for sentences.
-* *To*, *carbon copy* and *blind carbon copy* can be multiplied by using string and brackets (e.g "\<mail@mail.com>\<mail@mail.org>")
+* *To*, *carbon copy* and *blind carbon copy* can be multiplied by using string and brackets, separated by **comma** (e.g "\<mail@mail.com>,\<mail@mail.org>")
 * Multiple *attachments* specifying the files's name.
 
 ## Installation

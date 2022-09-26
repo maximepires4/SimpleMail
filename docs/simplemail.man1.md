@@ -1,4 +1,4 @@
-% SIMPLEMAIL(1) 1.0.0
+% SIMPLEMAIL(1) 1.0.1
 % Maxime Pires
 % September 2022
 
